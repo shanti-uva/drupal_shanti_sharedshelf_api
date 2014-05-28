@@ -26,6 +26,17 @@ Once set up, the module will enable GET calls for information from the associate
 	</tr>
 	<tr>
 		<td>
+			/sharedshelf/api/assets/{asset ID #}/representation<br/>
+			<em>(or)</em> /sharedshelf/api/assets/representation/size/{0 through 4}<br/>
+			<em>e.g.,</em> /sharedshelf/api/assets/2652868/represetation <br/>
+			<em>(or)</em> /sharedshelf/api/assets/2652868/represetation/size/3
+		</td>
+		<td>
+			This call redirects to the actual Shared Shelf URL for images. If no size is specificed then the full-sized image is given. Otherwise the numbers represent the following sizes: 0 => 64px wide, 1 => 128px, 2 => 256px, 3 => 512px, 4 => 1024px.
+		</td>
+	</tr>
+	<tr>
+		<td>
 			/sharedshelf/api/projects.json<br/>			
 			/sharedshelf/api/projects.xml
 		</td>

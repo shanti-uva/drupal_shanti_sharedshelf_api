@@ -96,6 +96,8 @@ function _sharedshelf_api_get_path($path='/acccount') {
       $_sharedshelf_cookie = _sharedshelf_api_account_post(variable_get('sharedshelf_api_settings_email', ''), variable_get('sharedshelf_api_settings_password', ''));
       $options['headers']['Cookie'] = $_sharedshelf_cookie;
       $response = drupal_http_request($sharedshelf_url, $options);
+    case 302:
+      drupal_goto($sharedshelf_url);
     case 200:
       // Since the request may have been submitted again because of access
       // issues, make sure response is good before attempting to get data.
@@ -103,7 +105,7 @@ function _sharedshelf_api_get_path($path='/acccount') {
         $results = json_decode($response->data, TRUE);
       }
       break;
-
+    
     default:
       // If we got here there is an issue, so we want to log the error.
       $error_message = isset($response->error) ? $response->error : '';
