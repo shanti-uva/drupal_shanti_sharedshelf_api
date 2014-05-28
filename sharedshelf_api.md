@@ -42,7 +42,7 @@ Once set up, the module will enable GET calls for information from the associate
 		<td>Returns a list of assets for project number with the ID number of #.</td>
 	</tr>
 	<tr>
-		<td>
+		<td valign="top">
 			/sharedshelf/api/projects/###/assets/filter/{field_name}/{field_value}.json <br/>
 			/sharedshelf/api/projects/###/assets/filter/{field_name}/{field_value}.xml <br/>
 			<em>i.e.,</em> /sharedshelf/api/projects/534/assets/filter/fd_24809_lookup.links.source_id/1300.json
