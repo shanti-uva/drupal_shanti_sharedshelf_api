@@ -1,0 +1,196 @@
+<?php
+
+/**
+ * @file
+ *  Module that allows a Shanti site to access a user's Google Drive with their permission
+ * 
+ * 
+ */
+ 
+define('SSHOST', 'http://catalog.sharedshelf.artstor.org');
+
+$_sharedshelf_cookie = '';
+
+function sharedshelf_api_init() {
+  /*
+  $glibpath = libraries_get_path('google-api-php-client');
+  set_include_path(DRUPAL_ROOT . '/' . $glibpath . "/src/" . PATH_SEPARATOR . get_include_path());
+  module_load_include('inc', 'gdrive', 'gdrive');
+   * */
+}
+
+function sharedshelf_api_menu() {
+  $items['sharedshelf/api'] = array(
+    'title' => 'Test API call',
+    'description' => 'Test the menu function to call the api',
+    'page callback' => 'sharedshelf_api_get',
+    //'page arguments' => array(2),
+    'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK | MENU_NORMAL_ITEM,
+  );
+  
+  // Admin URL for setting up Google Drive Authorization
+  $items['admin/config/services/sharedshelf_api'] = array(
+    'title' => 'Shared Shelf API Authentication Settings',
+    'description' => 'Configuration for Shared Shelf API',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sharedshelf_api_admin_settings'),
+    'access arguments' => array('access sharedshelf api settings'),
+    'type' => MENU_LOCAL_TASK | MENU_NORMAL_ITEM,
+  );
+ 
+  return $items;
+}
+
+
+/**
+* Implements hook_permission().
+*/
+function sharedshelf_api_permission() {
+  return array(
+    'access sharedshelf api settings' => array(
+      'title' => t('Set Shared Shelf API Authorization Info for Site'),
+    ),
+  ); 
+}
+
+
+/**
+ * Creates the admin settings form for Shanti Shared Shelf API module
+ */
+function sharedshelf_api_admin_settings($form, &$form_state) {
+  
+  $form['sharedshelf_api_settings_header'] = array(
+    '#markup' => t('<h3>Shared Shelf Authentication Settings</h3>') .
+      t('<p>Enter the information for authorizing access to Shared Shelf</p>'),
+  );
+  
+  $form['sharedshelf_api_settings_host'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Base URL for Shared Shelf API Host'),
+    '#size' => 80,
+    '#default_value' => variable_get('sharedshelf_api_settings_host', SSHOST),
+    '#required' => TRUE,
+  );  
+    
+  $form['sharedshelf_api_settings_email'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Enter Email Address for Shared Shelf Account'),
+    '#size' => 80,
+    '#default_value' => variable_get('sharedshelf_api_settings_email', ''),
+    '#required' => TRUE,
+  );  
+  
+  $form['sharedshelf_api_settings_password'] = array(
+    '#type' => 'password',
+    '#title' => t('Enter Password for Shared Shelf Account'),
+    '#size' => 80,
+    '#default_value' => variable_get('sharedshelf_api_settings_password', ''),
+    '#required' => TRUE,
+  );
+  
+  $form['sharedshelf_api_settings_project'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Default Project ID'),
+    '#size' => 80,
+    '#default_value' => variable_get('sharedshelf_api_settings_project', ''),
+  );
+   
+  return system_settings_form($form);
+}
+
+function sharedshelf_api_get() {
+  global $_sharedshelf_cookie;
+  module_load_include('inc', 'sharedshelf_api');
+  
+  if( $_sharedshelf_cookie == "" ) {
+    $_sharedshelf_cookie = _sharedshelf_api_account_post(variable_get('sharedshelf_api_settings_email', ''), variable_get('sharedshelf_api_settings_password', ''));
+  }
+  
+  $args = arg();
+  list($mode, $path) = sharedshelf_api_process_path($args);
+  $results = _sharedshelf_api_get_path($path);
+  $results['api_host'] = variable_get('sharedshelf_api_settings_host', SSHOST);
+  $results['api_path'] = $path;
+    
+  switch($mode) {
+    case 'json':
+      drupal_json_output($results);
+      break;
+    
+    case 'xml':
+      $xml_results = new SimpleXMLElement("<?xml version=\"1.0\" encoding=\"UTF-8\"?><results></results>");
+      array_to_xml($xml_results, $results);
+      drupal_add_http_header("Content-Type: text/xml; charset=utf-8");
+      print $xml_results->asXML();
+      break;
+      
+    default: // Drupal HTML is Default
+      drupal_set_title('Sharedshelf API Test');
+      $out = array(
+        'head' =>  array(
+          '#markup' => '<h2>SS API Test Out</h2>',
+        ),
+        'p' => array(
+          '#markup' => '<p>This is a test</p>',
+        ),
+        'p2' => array(
+          '#markup' => '<p><b>Path sent:</b> ' . $path . '</p>',
+        ),
+        'p3' => array(
+          '#markup' => '<p><b>Mode:</b> ' . $mode . '</p>',
+        ),
+      );
+      
+      dpm($results);
+      
+      return drupal_render($out);
+  }
+}
+
+function array_to_xml($xml, &$results) {
+  foreach($results as $key => $value) {
+    if(is_array($value)) {
+      if(!is_numeric($key)){
+          $key = preg_replace('/\s+/', '_', $key);
+          $subnode = $xml->addChild("$key");
+          array_to_xml($subnode, $value);
+      }
+      else{
+          $subnode = $xml->addChild("item");
+          $subnode->addAttribute('n', $key + 1);
+          array_to_xml($subnode, $value);
+      }
+    }
+    else {
+      if(!is_numeric($key)){
+        $xml->addChild("$key",htmlspecialchars("$value"));
+      } else {
+        $subnode = $xml->addChild("item",htmlspecialchars("$value"));
+        $subnode->addAttribute('n', $key + 1);
+      }
+    }
+  }
+}
+
+/**
+ * Takes path arguments and builds Shared Shelf API call. Most calls are 1-to-1 but filtered calls are:
+ *    e.g. /projects/534/assets?filter=[{"type":"string","value":"1300","field":"fd_24809_lookup.links.source_id"}] which becomes
+ *          /projects/534/assets/filter/fd_24809_lookup.links.source_id/1300.xml|json or more generally:
+ *          /projects/###/assets/filter/{fieldname}/{fieldvalue}.xml|json
+ */
+function sharedshelf_api_process_path($args) {
+  $lastarg = array_pop($args);
+  preg_match('/\.(json|xml)/', $lastarg, $match);
+  $mode = ($match) ? $match[1] : "html";
+  $lastarg = preg_replace('/\.(json|xml)/', '', $lastarg);
+  array_push($args, $lastarg);
+  // if it is filtered
+  $filter = '';
+  if($args[count($args) - 3] == 'filter') {
+    $filterArgs = array_splice($args, count($args) - 3);
+    $filter = '?filter=[{"type":"string","value":"' . array_pop($filterArgs) . '","field":"' . array_pop($filterArgs) . '"}]';
+  }
+  $path = '/' . implode('/', array_slice($args,2)) . $filter; // take off sharedshelf/api from url args
+  return array($mode, $path);
+}
