@@ -30,8 +30,8 @@ Once set up, the module will enable GET calls for information from the associate
 			/sharedshelf/api/projects.xml
 		</td>
 		<td>
-			This returns a list of projects associated with the account
-		<td>
+			This returns a list of projects associated with the account.
+		</td>
 	</tr>
 	<tr>
 		<td>
