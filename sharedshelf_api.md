@@ -67,7 +67,7 @@ Once set up, the module will enable GET calls for information from the associate
 	</tr>
 </table>
 
-The format of the returned is quite elaborated and cannot be fully described here. The best way to understand the return data for processing it to look at a few examples once the module is installed. However, a few comments can be made. In XML the top-level or root element is always <results>; in JSON this is represented simply as curly brackets. All returned result sets have the following fields:
+The format of the returned is quite elaborated and cannot be fully described here. The best way to understand the return data for processing it to look at a few examples once the module is installed. However, a few comments can be made. In XML the top-level or root element is always \<results\>; in JSON this is represented simply as curly brackets. All returned result sets have the following fields:
 
 <table>
 	<tr><th>Field Name</th><th>Description</th></tr>
