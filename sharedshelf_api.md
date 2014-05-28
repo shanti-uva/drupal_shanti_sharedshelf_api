@@ -21,7 +21,10 @@ Once set up, the module will enable GET calls for information from the associate
 			<em>e.g.,</em> /sharedshelf/api/assets/2652868
 		</td>
 		<td>
-			Returns information about a single assed
+			Returns information about a single asset
+		</td>
+	</tr>
+	<tr>
 		<td>
 			/sharedshelf/api/projects.json<br/>			
 			/sharedshelf/api/projects.xml
