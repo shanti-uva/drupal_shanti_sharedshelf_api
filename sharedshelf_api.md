@@ -61,7 +61,8 @@ Once set up, the module will enable GET calls for information from the associate
 		<td>
 			Returns assets from project ### which have a {field_name} whose value is {field_value}.<br/>
 			fd_24809_lookup.links.source_id = Kmaps Subject (for Shanti Shared Shelf)<br/>
-			fd_24803_lookup.links.source_id = Kmaps Places
+			fd_24803_lookup.links.source_id = Kmaps Places<br/>
+			<strong>Note:</strong> Filter field variable type is hard-coded to "string". The code will have to be updated to accomodate other variable types, if needed.
 		</td>
 	</tr>
 </table>
