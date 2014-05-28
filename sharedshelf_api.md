@@ -6,11 +6,11 @@ This module adapts code from Jack Kelly's Shared Shelf Media module extension in
 
 ## Module Set Up
 
-There are no dependencies for this module other than having an account on Shared Shelf. At present, only one account can be references per Drupal installation. After installing the module you will need to go to /admin/config/services/sharedshelf_api and enter in information about the Shared Shelf account to which this will be connected. By default, Admins can set Shared Shelf authorization data but this permission can be changed at /admin/people/permissions#module-sharedshelf_api 
+There are no dependencies for this module other than having an account on Shared Shelf. At present, only one account can be references per Drupal installation. After installing the module you will need to go to /admin/config/services/sharedshelf_api and enter in information about the Shared Shelf account to which this installation will be connected. By default, Admins can set Shared Shelf authorization data but this permission can be changed at /admin/people/permissions#module-sharedshelf_api 
 
 ## Module Use
 
-Once set up, the module will enable GET calls for information from the associated Shared Shelf account. The data format for the returned information is specified by the extension: '.json' returns JSON and '.xml' returns XML. The format of the JSON or XML is specific to Shared Shelf. The following is a list of calls and their description:
+Once set up, the module will enable GET calls for information from the associated Shared Shelf account. No PUT account modifications are enabled at this time. The data format for the returned information is specified by the extension: '.json' returns JSON and '.xml' returns XML. The format of the JSON or XML is specific to Shared Shelf. The following is a list of calls and their description:
 
 <table>
 	<tr><th>API Call</th><th>Description</th></tr>
