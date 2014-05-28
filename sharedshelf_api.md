@@ -16,8 +16,8 @@ Once set up, the module will enable GET calls for information from the associate
 	<tr><th>API Call</th><th>Description</th></tr>
 	<tr>
 		<td>
-			/sharedshelf/api/assets/{asset ID #}.json</br>
-			/sharedshelf/api/assets/{asset ID #}.xml</br>
+			/sharedshelf/api/assets/{asset ID #}.json<br/>
+			/sharedshelf/api/assets/{asset ID #}.xml<br/>
 			<em>e.g.,</em> /sharedshelf/api/assets/2652868
 		</td>
 		<td>
