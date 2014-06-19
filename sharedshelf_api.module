@@ -147,8 +147,6 @@ function sharedshelf_api_get() {
         ),
       );
       
-      dpm($results);
-      
       return drupal_render($out);
   }
 }
