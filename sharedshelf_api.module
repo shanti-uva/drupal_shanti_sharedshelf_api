@@ -16,7 +16,7 @@ function sharedshelf_api_init() {
   $glibpath = libraries_get_path('google-api-php-client');
   set_include_path(DRUPAL_ROOT . '/' . $glibpath . "/src/" . PATH_SEPARATOR . get_include_path());
   module_load_include('inc', 'gdrive', 'gdrive');
-   * */
+   **/
 }
 
 function sharedshelf_api_menu() {
