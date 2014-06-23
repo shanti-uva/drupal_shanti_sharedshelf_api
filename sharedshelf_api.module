@@ -111,7 +111,13 @@ function sharedshelf_api_get() {
   list($mode, $path) = sharedshelf_api_parse_path($args); // Parse
   // Do redirect for images themeselves
   if($mode == 'image') {
-    drupal_goto(variable_get('sharedshelf_api_settings_host', SSHOST) . $path);
+    // Work around for paths ending in representation to return the full size image
+    if(array_pop(explode('/', $path)) == 'representation') {
+      $path = $path . '/details';
+      $results = _sharedshelf_api_get_path($path);
+      drupal_goto($results['url']);
+    }
+    $results = _sharedshelf_api_get_path($path); // If it's an image, this is a redirect and the function stops here.
   }
   // Otherwise Make Shareshelf API Call
   $results = _sharedshelf_api_get_path($path);
@@ -119,9 +125,6 @@ function sharedshelf_api_get() {
   $results['api_host'] = variable_get('sharedshelf_api_settings_host', SSHOST);
   $results['api_path'] = $path;
   switch($mode) {
-    case 'json':
-      drupal_json_output($results);
-      break;
     
     case 'xml':
       $xml_results = new SimpleXMLElement("<?xml version=\"1.0\" encoding=\"UTF-8\"?><results></results>");
@@ -130,11 +133,11 @@ function sharedshelf_api_get() {
       print $xml_results->asXML();
       break;
       
-    default: // Drupal HTML is Default
-      drupal_set_title('Sharedshelf API Test');
+    case 'html': // Drupal HTML is Default
+      drupal_set_title('Sharedshelf API Info');
       $out = array(
         'head' =>  array(
-          '#markup' => '<h2>SS API Test Out</h2>',
+          '#markup' => '<h2>SS API HTML Out for Degugging</h2>',
         ),
         'p' => array(
           '#markup' => '<p>This is a test</p>',
@@ -148,6 +151,12 @@ function sharedshelf_api_get() {
       );
       
       return drupal_render($out);
+      
+    default:
+    //case 'json': Defaults to JSON
+      drupal_json_output($results);
+      break;
+      
   }
 }
 
@@ -185,10 +194,10 @@ function array_to_xml($xml, &$results) {
 function sharedshelf_api_parse_path($args) {
   $lastarg = array_pop($args);
   preg_match('/\.(json|xml|html)/', $lastarg, $match);
-  $mode = ($match) ? $match[1] : "html";
+  $mode = ($match) ? $match[1] : "";
   $lastarg = preg_replace('/\.(json|xml|html)/', '', $lastarg);
   array_push($args, $lastarg);
-  if(in_array('representation', $args)) {
+  if(in_array('representation', $args) && !in_array('details', $args)) {
     $mode = 'image'; // Images require redirect. See above.
   }
   // if it is filtered

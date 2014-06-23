@@ -87,6 +87,7 @@ function _sharedshelf_api_get_path($path='/acccount') {
   $options = array('headers' => array('Cookie' => $_sharedshelf_cookie), 'method' => 'GET');
   $sharedshelf_url = url(variable_get('sharedshelf_api_settings_host', SSHOST) . $path);
   $response = drupal_http_request($sharedshelf_url, $options);
+  //dpm($response, 'response');
   switch ($response->code) {
     case 401:
     case 403:
@@ -99,6 +100,10 @@ function _sharedshelf_api_get_path($path='/acccount') {
     case 302:
       drupal_goto($sharedshelf_url);
     case 200:
+      // Redirect for actual images from artstore
+      if(isset($response->redirect_code) && $response->redirect_code == 302) {
+        drupal_goto($response->redirect_url);
+      }
       // Since the request may have been submitted again because of access
       // issues, make sure response is good before attempting to get data.
       if ($response->code == 200) {
